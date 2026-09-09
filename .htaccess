@@ -1,0 +1,45 @@
+# Sécurité et configuration pour le module de connexion
+
+# Empêcher l'accès direct aux fichiers de configuration
+<Files "database.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Empêcher l'affichage des erreurs PHP en production (décommentez si nécessaire)
+# php_flag display_errors Off
+# php_flag log_errors On
+
+# Forcer HTTPS (décommentez si vous avez un certificat SSL)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Protection contre certaines attaques
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Bloquer l'accès aux fichiers sensibles
+    RewriteRule ^(config|includes)/ - [F,L]
+    
+    # Redirection de la racine vers index.php si nécessaire
+    # RewriteCond %{REQUEST_FILENAME} !-f
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    # RewriteRule ^$ index.php [L]
+</IfModule>
+
+# Désactiver la navigation dans les dossiers
+Options -Indexes
+
+# Définir des types MIME pour la sécurité
+<IfModule mod_mime.c>
+    AddType application/json .json
+    AddType application/javascript .js
+</IfModule>
+
+# Headers de sécurité (si mod_headers est activé)
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
